@@ -1,0 +1,67 @@
+# Example configuration with anchors, aliases, and additional types
+
+app_name: &app_name MyAwesomeProject
+
+defaults: &default_server_settings
+  host: 127.0.0.1
+  port: 8080
+  ssl:
+    enabled: false
+    cert_file: /etc/ssl/certs/default.crt
+    key_file: /etc/ssl/private/default.key
+
+app:
+  name: *app_name
+  version: 1.0.0
+  environment: production
+  release_date: 2024-10-01  # Date type example
+
+server:
+  <<: *default_server_settings  # Using anchor to include default server settings
+  ssl:
+    enabled: true               # Overriding the 'enabled' value
+    cert_file: /etc/ssl/certs/myapp.crt
+    key_file: /etc/ssl/private/myapp.key
+
+database:
+  type: postgres
+  host: localhost
+  port: 5432
+  name: myappdb
+  user: dbuser
+  password: supersecretpassword
+  max_connections: 50
+  retries: !!int 3             # Explicit type casting
+  timeout: !!float 5.5         # Float example
+
+logging:
+  level: info
+  file: /var/log/myapp.log
+  format: json
+  rotate:
+    enabled: true
+    max_size: !!int 100         # Explicit int for file size in MB
+    retention_period: !!str "30 days"  # String representation of a period
+
+features:
+  authentication: true
+  caching: true
+  max_cache_size: 256MB         # Implicit string
+  experimental_features: !!seq  # Explicitly defining as a sequence
+    - feature_x
+    - feature_y
+  third_party_integrations: &integrations
+    - name: stripe
+      api_key: sk_test_1234567890
+    - name: sendgrid
+      api_key: SG.abcdefg
+
+clients:
+  - name: clientA
+    id: abc123
+    secret: xyz789
+  - name: clientB
+    id: def456
+    secret: uvw000
+  - name: clientC
+    <<: *integrations  # Reusing the third-party integrations with alias
